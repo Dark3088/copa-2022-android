@@ -1,20 +1,33 @@
 package me.dio.copa.catar
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import dagger.hilt.android.AndroidEntryPoint
+import me.dio.copa.catar.extensions.rememberFlow
+import me.dio.copa.catar.ui.MainViewModel
+import me.dio.copa.catar.ui.MatchList
 import me.dio.copa.catar.ui.theme.Copa2022Theme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             Copa2022Theme {
                 // A surface container using the 'background' color from the theme
@@ -22,23 +35,35 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                     Greeting("Android")
+                    val lifeCycleAware = rememberFlow(flow = viewModel.matchListState)
+                    val list by lifeCycleAware.collectAsState(initial = emptyList())
+
+                    Column {
+                        ListHeader("Lista de Partidas")
+                        MatchList(list)
+                    }
                 }
             }
         }
     }
-
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+fun ListHeader(title: String) {
+    Row(
+        modifier = Modifier
+            .padding(top = 24.dp, start = 16.dp, end = 16.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(text = title)
+    }
 }
 
 @Composable
 @Preview(showBackground = true)
 fun DefaultPreview() {
     Copa2022Theme {
-        Greeting("Android")
+        ListHeader(title = "Matches List")
     }
 }
