@@ -39,6 +39,9 @@ class MainViewModel @Inject constructor(
     private val _matchListState = MutableStateFlow(emptyList<MatchDomain>())
     val matchListState : StateFlow<List<MatchDomain>> = _matchListState
 
+    private val _expandedCardIdsList = MutableStateFlow(listOf<String>())
+    val expandedCardIdsList: StateFlow<List<String>> get() = _expandedCardIdsList
+
     fun updateNotificationState(newMatchNotificationState: Match) {
         var matchNotificationState = newMatchNotificationState.copy(
             notificationEnabled = newMatchNotificationState.notificationEnabled
@@ -50,6 +53,12 @@ class MainViewModel @Inject constructor(
             matchesRepo.invoke().collect {
                 _matchListState.value = it
             }
+        }
+    }
+
+    fun onCardArrowClicked(cardId: String) {
+        _expandedCardIdsList.value = _expandedCardIdsList.value.toMutableList().also { list ->
+            if (list.contains(cardId)) list.remove(cardId) else list.add(cardId)
         }
     }
 }
