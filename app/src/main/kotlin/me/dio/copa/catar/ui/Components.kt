@@ -1,7 +1,7 @@
 package me.dio.copa.catar.ui
 
 
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import me.dio.copa.catar.R
 import androidx.compose.foundation.layout.*
@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -156,28 +157,40 @@ fun CardArrow(
 @Composable
 fun StadiumInfo(stadium: Stadium, shouldExpand: Boolean) {
 
-    Row(
-        verticalAlignment = Alignment.Top,
-        modifier = Modifier
-            .animateContentSize(
-                animationSpec = tween(
-                    700, easing = FastOutSlowInEasing
-                )
-            )
-            .padding(vertical = 8.dp)
-            .fillMaxWidth()
+    val density = LocalDensity.current
+
+    AnimatedVisibility(
+        visible = shouldExpand,
+        enter = slideInVertically {
+            with(density) { -10.dp.roundToPx() }
+        }
+                + expandVertically(expandFrom = Alignment.Top)
+                + fadeIn(initialAlpha = 0.1f, animationSpec = tween(durationMillis = 700)
+        ),
+
+        exit = fadeOut(
+            targetAlpha = 0f,
+            animationSpec = tween(durationMillis = 700, easing = LinearOutSlowInEasing)
+        ) + shrinkVertically()
+
     ) {
-        AsyncImage(
-            modifier = Modifier.fillMaxWidth(),
-            model = if (shouldExpand) {
-                ImageRequest.Builder(LocalContext.current)
+        Row(
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth()
+        ) {
+            AsyncImage(
+                modifier = Modifier.fillMaxWidth(),
+                model = ImageRequest.Builder(LocalContext.current)
                     .data(stadium.image)
                     .crossfade(true)
-                    .fallback(R.drawable.ic_notifications_active)
-                    .build()
-            } else null,
-            contentDescription = ""
-        )
+                    .fallback(R.drawable.not_found)
+                    .build(),
+
+                contentDescription = ""
+            )
+        }
     }
 }
 
