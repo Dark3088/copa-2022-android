@@ -1,7 +1,5 @@
 package me.dio.copa.catar.ui
 
-
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import me.dio.copa.catar.R
 import androidx.compose.foundation.layout.*
@@ -18,6 +16,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,6 +27,7 @@ import me.dio.copa.catar.core.MatchNotifier
 import me.dio.copa.catar.domain.extensions.getDate
 import me.dio.copa.catar.domain.model.MatchDomain
 import me.dio.copa.catar.domain.model.Stadium
+import me.dio.copa.catar.ui.animations.AnimationExpand
 import me.dio.copa.catar.ui.theme.MatchTextStyle
 
 /*
@@ -151,8 +151,8 @@ fun CardArrow(
         onClick = onClick,
         content = {
             Icon(
-                painter = painterResource(id = R.drawable.baseline_expand_more_24),
-                contentDescription = "Expandable Arrow",
+                painter = painterResource(R.drawable.baseline_expand_more_24),
+                contentDescription = stringResource(R.string.description_arrow),
                 modifier = Modifier.rotate(degrees),
             )
         }
@@ -165,24 +165,7 @@ fun StadiumInfo(
     shouldExpand: Boolean,
     shouldSetNotification: (Boolean) -> Unit
 ) {
-    val density = LocalDensity.current
-
-    AnimatedVisibility(
-        visible = shouldExpand,
-        enter = slideInVertically {
-            with(density) { -10.dp.roundToPx() }
-        }
-                + expandVertically(expandFrom = Alignment.Top)
-                + fadeIn(
-            initialAlpha = 0.1f, animationSpec = tween(durationMillis = 700)
-        ),
-
-        exit = fadeOut(
-            targetAlpha = 0f,
-            animationSpec = tween(durationMillis = 700, easing = LinearOutSlowInEasing)
-        ) + shrinkVertically()
-
-    ) {
+    AnimationExpand(isVisible = shouldExpand) {
         Box {
             Row(
                 verticalAlignment = Alignment.Top,
@@ -236,7 +219,7 @@ fun StadiumDetails(
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(notificationIcon),
-                contentDescription = "Notification Icon",
+                contentDescription = stringResource(R.string.description_notification_icon),
                 tint = Color.White
             )
         }

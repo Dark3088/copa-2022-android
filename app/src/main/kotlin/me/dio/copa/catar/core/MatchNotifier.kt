@@ -37,8 +37,8 @@ class MatchNotifier @AssistedInject constructor (
 
         fun start(context: Context, title: String, content: String) {
 
-            data.putString("notification_title", title)
-            data.putString("notification_content", content)
+            data.putString(NOTIFICATION_TITLE, title)
+            data.putString(NOTIFICATION_CONTENT, content)
 
             WorkManager.getInstance(context).enqueueUniqueWork(
                 NOTIFICATION_WORKER,
