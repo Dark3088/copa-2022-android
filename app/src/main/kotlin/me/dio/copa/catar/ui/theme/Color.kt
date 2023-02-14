@@ -3,15 +3,10 @@ package me.dio.copa.catar.ui.theme
 import androidx.compose.material.Colors
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
-
-val md_theme_light_primary = Color(0xFF006E1D)
+val md_theme_light_primary = Color(0xFF009688)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFF78FE7C)
-val md_theme_light_onPrimaryContainer = Color(0xFF002204)
+val md_theme_light_onPrimaryContainer = Color(0xFF006064)
 val md_theme_light_secondary = Color(0xFF626200)
 val md_theme_light_onSecondary = Color(0xFFFFFFFF)
 val md_theme_light_secondaryContainer = Color(0xFFEBEA21)
@@ -41,7 +36,7 @@ val md_theme_light_scrim = Color(0xFF000000)
 
 val lightColors = Colors(
     primary = md_theme_light_primary,
-    primaryVariant = md_theme_light_primaryContainer,
+    primaryVariant = md_theme_light_onPrimaryContainer,
     secondary = md_theme_light_secondary,
     secondaryVariant = md_theme_light_secondaryContainer,
     background = md_theme_light_background,
@@ -55,7 +50,7 @@ val lightColors = Colors(
     isLight = true
 )
 
-val md_theme_dark_primary = Color(0xFF5AE163)
+val md_theme_dark_primary = Color(0xFF009688)
 val md_theme_dark_onPrimary = Color(0xFF00390B)
 val md_theme_dark_primaryContainer = Color(0xFF005313)
 val md_theme_dark_onPrimaryContainer = Color(0xFF78FE7C)
@@ -86,4 +81,18 @@ val md_theme_dark_surfaceTint = Color(0xFF5AE163)
 val md_theme_dark_outlineVariant = Color(0xFF424940)
 val md_theme_dark_scrim = Color(0xFF000000)
 
-val seed = Color(0xFF00A530)
+val darkColors = Colors(
+    primary = md_theme_dark_primary,
+    primaryVariant = md_theme_dark_primaryContainer,
+    secondary = md_theme_dark_secondary,
+    secondaryVariant = md_theme_dark_secondaryContainer,
+    background = md_theme_dark_background,
+    surface = md_theme_dark_surface,
+    error = md_theme_dark_error,
+    onPrimary = md_theme_dark_onSurface,
+    onSecondary = md_theme_dark_onSecondary,
+    onBackground = md_theme_dark_onBackground,
+    onSurface = md_theme_dark_onSurface,
+    onError = md_theme_dark_onError,
+    isLight = false
+)
