@@ -9,16 +9,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import kotlinx.coroutines.launch
+import me.dio.copa.catar.core.MatchNotifier
+import me.dio.copa.catar.domain.extensions.getDate
 import me.dio.copa.catar.domain.model.MatchDomain
 import me.dio.copa.catar.domain.model.Stadium
 import me.dio.copa.catar.ui.theme.MatchTextStyle
@@ -34,26 +41,9 @@ fun MatchList(
     matchList: List<MatchDomain>,
     mViewModel: MainViewModel = viewModel()
 ) {
-    val testLisIds by mViewModel.expandedCardIdsList.collectAsState()
-
-/*        val mMatchList = listOf(
-            MatchDomain(
-            id = "1",
-            name = "1ª RODADA",
-            stadium = Stadium(name = "LUSAIL", image = "https://digitalinnovationone.github.io/copa-2022-android/statics/lusali-stadium.png"),
-            team1 = Team(displayName = "BR", flag = ""),
-            team2 = Team(displayName = "RS", flag = ""),
-            date = LocalDateTime.now()
-            ),
-            MatchDomain(
-                id = "2",
-                name = "2ª RODADA",
-                stadium = Stadium(name = "ESTÁDIO 974", image = "https://digitalinnovationone.github.io/copa-2022-android/statics/974-stadium.png"),
-                team1 = Team(displayName = "BR", flag = ""),
-                team2 = Team(displayName = "CH", flag = ""),
-                date = LocalDateTime.now()
-            ),
-        )*/
+    val mIdsPlaceholder by mViewModel.expandedCardIdsList.collectAsState()
+    val context = LocalContext.current
+    val coroutine = rememberCoroutineScope()
 
     Scaffold { paddingValues ->
 
@@ -68,7 +58,7 @@ fun MatchList(
         ) {
             items(matchList, key = { it.id }) { matchInfo ->
 
-                val rotateAndExpand = testLisIds.contains(matchInfo.id)
+                val rotateAndExpand = mIdsPlaceholder.contains(matchInfo.id)
 
                 val rotationDegrees = animateFloatAsState(
                     targetValue = if (rotateAndExpand) 180.0f else 0.0f, animationSpec = spring(
@@ -86,7 +76,22 @@ fun MatchList(
 
                 StadiumInfo(
                     stadium = matchInfo.stadium,
-                    shouldExpand = rotateAndExpand
+                    shouldExpand = rotateAndExpand,
+                    shouldSetNotification = { itShouldBeSet ->
+                        if (itShouldBeSet) {
+                            mViewModel.enableNotificationFor(matchInfo.id)
+                            coroutine.launch {
+                                MatchNotifier.start(
+                                    context, matchInfo.name, matchInfo.date.getDate()
+                                )
+                            }
+                        } else {
+                            mViewModel.disableNotificationFor(matchInfo.id)
+                            coroutine.launch {
+                                MatchNotifier.cancel(context)
+                            }
+                        }
+                    }
                 )
             }
         }
@@ -155,8 +160,11 @@ fun CardArrow(
 }
 
 @Composable
-fun StadiumInfo(stadium: Stadium, shouldExpand: Boolean) {
-
+fun StadiumInfo(
+    stadium: Stadium,
+    shouldExpand: Boolean,
+    shouldSetNotification: (Boolean) -> Unit
+) {
     val density = LocalDensity.current
 
     AnimatedVisibility(
@@ -165,7 +173,8 @@ fun StadiumInfo(stadium: Stadium, shouldExpand: Boolean) {
             with(density) { -10.dp.roundToPx() }
         }
                 + expandVertically(expandFrom = Alignment.Top)
-                + fadeIn(initialAlpha = 0.1f, animationSpec = tween(durationMillis = 700)
+                + fadeIn(
+            initialAlpha = 0.1f, animationSpec = tween(durationMillis = 700)
         ),
 
         exit = fadeOut(
@@ -174,21 +183,61 @@ fun StadiumInfo(stadium: Stadium, shouldExpand: Boolean) {
         ) + shrinkVertically()
 
     ) {
-        Row(
-            verticalAlignment = Alignment.Top,
-            modifier = Modifier
-                .padding(vertical = 8.dp)
-                .fillMaxWidth()
-        ) {
-            AsyncImage(
-                modifier = Modifier.fillMaxWidth(),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(stadium.image)
-                    .crossfade(true)
-                    .fallback(R.drawable.not_found)
-                    .build(),
+        Box {
+            Row(
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                AsyncImage(
+                    modifier = Modifier.fillMaxWidth(),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(stadium.image)
+                        .crossfade(true)
+                        .fallback(R.drawable.not_found)
+                        .build(),
 
-                contentDescription = ""
+                    contentDescription = ""
+                )
+            }
+            StadiumDetails(
+                shouldSetNotification = { forThisMatch -> shouldSetNotification(forThisMatch) }
+            )
+        }
+    }
+}
+
+@Composable
+fun StadiumDetails(
+    shouldSetNotification: (Boolean) -> Unit
+) {
+
+    var isNotificationActive by rememberSaveable { mutableStateOf(false) }
+
+    val onNotificationClick = {
+        isNotificationActive = !isNotificationActive
+        shouldSetNotification(isNotificationActive)
+    }
+
+    val notificationIcon =
+        if (isNotificationActive) R.drawable.ic_notifications_active
+        else R.drawable.ic_notifications
+
+    Row(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        IconButton(
+            onClick = onNotificationClick,
+            modifier = Modifier.size(24.dp)
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(notificationIcon),
+                contentDescription = "Notification Icon",
+                tint = Color.White
             )
         }
     }

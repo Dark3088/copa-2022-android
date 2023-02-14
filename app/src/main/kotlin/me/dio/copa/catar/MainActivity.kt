@@ -5,9 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,9 +34,18 @@ class MainActivity : ComponentActivity() {
                     val lifeCycleAware = rememberFlow(flow = viewModel.matchListState)
                     val list by lifeCycleAware.collectAsState(initial = emptyList())
 
-                    Column {
-                        ListHeader("Lista de Partidas")
-                        MatchList(list)
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(title = { Text(text = "Match Notifier") })
+                        }
+                    ) { paddingValues ->
+
+                        Column(
+                            modifier = Modifier.padding(paddingValues)
+                        ) {
+                            ListHeader("Lista de Partidas")
+                            MatchList(list)
+                        }
                     }
                 }
             }

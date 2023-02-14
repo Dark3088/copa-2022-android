@@ -1,27 +1,16 @@
 package me.dio.copa.catar.ui
 
-import android.util.Log
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
-import kotlinx.coroutines.launch
-
-import me.dio.copa.catar.domain.model.Match
 import me.dio.copa.catar.domain.model.MatchDomain
-
-import me.dio.copa.catar.domain.repositories.MatchesRepository
 
 import me.dio.copa.catar.domain.usecase.DisableNotificationUseCase
 import me.dio.copa.catar.domain.usecase.EnableNotificationUseCase
 import me.dio.copa.catar.domain.usecase.GetMatchesUseCase
-import me.dio.copa.catar.extensions.observe
-import me.dio.copa.catar.remote.model.MatchRemote
 
 import javax.inject.Inject
 
@@ -42,10 +31,12 @@ class MainViewModel @Inject constructor(
     private val _expandedCardIdsList = MutableStateFlow(listOf<String>())
     val expandedCardIdsList: StateFlow<List<String>> get() = _expandedCardIdsList
 
-    fun updateNotificationState(newMatchNotificationState: Match) {
-        var matchNotificationState = newMatchNotificationState.copy(
-            notificationEnabled = newMatchNotificationState.notificationEnabled
-        )
+    fun enableNotificationFor(id: String) = viewModelScope.launch {
+        enableNotificationUseCase.invoke(id)
+    }
+
+    fun disableNotificationFor(id: String) = viewModelScope.launch{
+        disableNotificationUseCase.invoke(id)
     }
 
     private fun getAllMatches() = viewModelScope.launch {
