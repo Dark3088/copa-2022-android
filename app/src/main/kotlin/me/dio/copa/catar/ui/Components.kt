@@ -30,12 +30,6 @@ import me.dio.copa.catar.domain.model.Stadium
 import me.dio.copa.catar.ui.animations.AnimationExpand
 import me.dio.copa.catar.ui.theme.MatchTextStyle
 
-/*
-TODO:
-1. Criar uma lista com elementos que se expandem ao toque
-2. Implementar um ícone de notificação que, quando tocado, cria um agendamento (work manager) para o usuário
-3. Mostrar informações do estádio, como nome e magem junto a data e hora
- */
 @Composable
 fun MatchList(
     matchList: List<MatchDomain>,
@@ -53,12 +47,13 @@ fun MatchList(
                 .fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.spacedBy(8.dp)
 
         ) {
             items(matchList, key = { it.id }) { matchInfo ->
 
                 val rotateAndExpand = mIdsPlaceholder.contains(matchInfo.id)
+                val notificationMessage = stringResource(R.string.notification_title)
 
                 val rotationDegrees = animateFloatAsState(
                     targetValue = if (rotateAndExpand) 180.0f else 0.0f, animationSpec = spring(
@@ -76,13 +71,18 @@ fun MatchList(
 
                 StadiumInfo(
                     stadium = matchInfo.stadium,
+                    matchDate = matchInfo.date.getDate(),
                     shouldExpand = rotateAndExpand,
                     shouldSetNotification = { itShouldBeSet ->
                         if (itShouldBeSet) {
                             mViewModel.enableNotificationFor(matchInfo.id)
+
                             coroutine.launch {
                                 MatchNotifier.start(
-                                    context, matchInfo.name, matchInfo.date.getDate()
+                                    context, "${matchInfo.name} $notificationMessage",
+                                    "${matchInfo.team1.flag}  ${matchInfo.team1.displayName}" +
+                                            " X " +
+                                            "${matchInfo.team2.flag}  ${matchInfo.team2.displayName}"
                                 )
                             }
                         } else {
@@ -108,6 +108,7 @@ fun RowItemInfo(description: String) {
             text = description,
             style = MaterialTheme.typography.caption
         )
+        Spacer(modifier = Modifier.padding(12.dp))
     }
 }
 
@@ -162,16 +163,19 @@ fun CardArrow(
 @Composable
 fun StadiumInfo(
     stadium: Stadium,
+    matchDate: String,
     shouldExpand: Boolean,
     shouldSetNotification: (Boolean) -> Unit
 ) {
+
     AnimationExpand(isVisible = shouldExpand) {
-        Box {
+        Box (contentAlignment = Alignment.BottomCenter) {
             Row(
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier
-                    .padding(vertical = 8.dp)
                     .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+
             ) {
                 AsyncImage(
                     modifier = Modifier.fillMaxWidth(),
@@ -185,6 +189,8 @@ fun StadiumInfo(
                 )
             }
             StadiumDetails(
+                stadiumName = stadium.name,
+                date = matchDate,
                 shouldSetNotification = { forThisMatch -> shouldSetNotification(forThisMatch) }
             )
         }
@@ -193,6 +199,8 @@ fun StadiumInfo(
 
 @Composable
 fun StadiumDetails(
+    stadiumName: String,
+    date: String,
     shouldSetNotification: (Boolean) -> Unit
 ) {
 
@@ -207,15 +215,17 @@ fun StadiumDetails(
         if (isNotificationActive) R.drawable.ic_notifications_active
         else R.drawable.ic_notifications
 
-    Row(
+    Column(
         modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.End
+            .height(160.dp)
+            .fillMaxSize()
+            .padding(vertical = 16.dp),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         IconButton(
             onClick = onNotificationClick,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(48.dp)
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(notificationIcon),
@@ -223,25 +233,15 @@ fun StadiumDetails(
                 tint = Color.White
             )
         }
+        Text(
+            text = stringResource(R.string.match_date_time, date),
+            style = MatchTextStyle.titleMedium,
+            color = MaterialTheme.colors.onPrimary
+        )
+        Text(
+            text = stringResource(R.string.stadium, stadiumName),
+            style = MatchTextStyle.titleSmall,
+            color = MaterialTheme.colors.onPrimary
+        )
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
