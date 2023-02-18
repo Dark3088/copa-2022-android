@@ -1,14 +1,13 @@
 Match Notifier App
 ==================
 
-This project is the final solution for the "Formação Android Developer" Course, provided
+This project is the final solution for the "Formação Android Developer" Bootcamp, provided
 by [Digital Innovation One](https://www.dio.me) - An Information Technology teaching platform.
 
 App Overview
 ------------
 
-The project uses retrofit to make an asynchronous request and, if successful, render a list
-of the World Cup Matches, along with their specific information. From this point, we can:
+The project gets a list of the World Cup Matches, along with their specific information. The following interactions are available:
 
 - Expand any item of the list to view its details
 - Set a notification for the event
@@ -17,19 +16,23 @@ of the World Cup Matches, along with their specific information. From this point
 
 You can check out [the original repository](https://github.com/digitalinnovationone/copa-2022-android/tree/feature/base-project) for further reference.
 
-Technologies and Libraries used:
---------------------------------
+Technologies / Patterns:
+------------------------
 
 - Jetpack Compose
 - Dagger-Hilt for Dependency Injection
 - ViewModel
 - State Hoisting
+- Work Manager
+- Notifications
 - Data Store
 - Animations API: (Visibility and State)
-- Kotlin Flows
+- Kotlin StateFlow + Lifecycle
 - Retrofit
 - OkHttp
 - GitHub Pages (For the API)
+- Multi-Module Strategy
+- MVVM Architecture
 
 Screenshots:
 ------------
